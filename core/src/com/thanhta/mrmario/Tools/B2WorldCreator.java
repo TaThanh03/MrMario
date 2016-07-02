@@ -15,7 +15,6 @@ import com.thanhta.mrmario.Sprites.Coin;
 
 public class B2WorldCreator {
     public B2WorldCreator(World world, TiledMap map){
-        //tempolary
         BodyDef bdef = new BodyDef();
         PolygonShape shape = new PolygonShape();
         FixtureDef fdef = new FixtureDef();
