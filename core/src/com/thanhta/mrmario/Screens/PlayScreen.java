@@ -50,7 +50,6 @@ public class PlayScreen implements Screen {
     public PlayScreen(MrMario game){
         atlas = new TextureAtlas("Mario_and_Enemies.pack");
         this.game = game;
-
         //create cam to follow mario through cam world
         gamecam = new OrthographicCamera();
         //create fit view port to maintain virtual aspect ratio despite screens
@@ -76,9 +75,7 @@ public class PlayScreen implements Screen {
         return atlas;
     }
     @Override
-    public void show() {
-
-    }
+    public void show() {}
     private void handleInput(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
             player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);

@@ -29,7 +29,7 @@ public class Mario extends Sprite {
     public Mario (World world, PlayScreen screen){
         super(screen.getAtlas().findRegion("little_mario"));
         this.world = world;
-        currentState = State.STANDING;
+        currentState  = State.STANDING;
         previousState = State.STANDING;
         stateTimer = 0;
         runningRight = true;
@@ -77,7 +77,9 @@ public class Mario extends Sprite {
             runningRight = true;
         }
         //if currentState == previousState then stateTimer += dt, else stateTimer =0
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
+        //        stateTimer = currentState == previousState ? stateTimer + dt : 0;
+        if (currentState == previousState){ stateTimer += dt;}
+        else {stateTimer=0;}
         currentState = previousState;
         return region;
     }
@@ -92,7 +94,7 @@ public class Mario extends Sprite {
         else
             return State.STANDING;
     }
-    private void defineMario() {
+    public void defineMario() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(32/ MrMario.PPM,32/ MrMario.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
