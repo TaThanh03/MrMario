@@ -3,9 +3,11 @@ package com.thanhta.mrmario.Sprites;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -80,7 +82,8 @@ public class Mario extends Sprite {
         //        stateTimer = currentState == previousState ? stateTimer + dt : 0;
         if (currentState == previousState){ stateTimer += dt;}
         else {stateTimer=0;}
-        currentState = previousState;
+        //update previous state
+        previousState = currentState;
         return region;
     }
 
@@ -99,12 +102,23 @@ public class Mario extends Sprite {
         bodyDef.position.set(32/ MrMario.PPM,32/ MrMario.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
-
         FixtureDef fixtureDef = new FixtureDef();
+        //know what bit is mario
+        fixtureDef.filter.categoryBits = MrMario.MARIO_BIT;
+        //what fixture can mario collide?
+        fixtureDef.filter.maskBits = MrMario.DEFAULT_BIT | MrMario.BRICK_BIT | MrMario.COIN_BIT;
+
+
+        //create mario's body
         CircleShape shape = new CircleShape();
         shape.setRadius(7/ MrMario.PPM);
-
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef);
+        //create mario's head sensor
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2/ MrMario.PPM, 8/ MrMario.PPM),new Vector2(2/ MrMario.PPM, 8/ MrMario.PPM));
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        b2body.createFixture(fixtureDef).setUserData("head");
     }
 }

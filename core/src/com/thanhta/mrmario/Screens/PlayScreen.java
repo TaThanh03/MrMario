@@ -25,6 +25,7 @@ import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Scenes.Hud;
 import com.thanhta.mrmario.Sprites.Mario;
 import com.thanhta.mrmario.Tools.B2WorldCreator;
+import com.thanhta.mrmario.Tools.WorldContactListener;
 
 public class PlayScreen implements Screen {
     //reference to game, used to set screen
@@ -70,6 +71,8 @@ public class PlayScreen implements Screen {
         new B2WorldCreator(world,map);
         //create mario in game world
         player = new Mario(world, this);
+
+        world.setContactListener(new WorldContactListener());
     }
     public TextureAtlas getAtlas(){
         return atlas;
