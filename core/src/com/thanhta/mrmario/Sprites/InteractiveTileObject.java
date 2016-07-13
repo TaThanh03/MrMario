@@ -12,19 +12,20 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.thanhta.mrmario.MrMario;
+import com.thanhta.mrmario.Screens.PlayScreen;
 
 public abstract class InteractiveTileObject {
     private World world;
-    private TiledMap map;
+    protected TiledMap map;
     private TiledMapTile tile;
     private Rectangle bounds;
     private Body body;
 
     protected Fixture fixture;
 
-    public InteractiveTileObject (World world, TiledMap map, Rectangle bounds){
-        this.world = world;
-        this.map = map;
+    public InteractiveTileObject (PlayScreen screen, Rectangle bounds){
+        this.world = screen.getWorld();
+        this.map = screen.getMap();
         this.bounds = bounds;
         BodyDef bdef = new BodyDef();
         FixtureDef fdef = new FixtureDef();
