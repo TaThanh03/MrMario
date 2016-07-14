@@ -69,7 +69,7 @@ public class PlayScreen implements Screen {
         new B2WorldCreator(this);
         //create mario in game world
         player = new Mario(this);
-        goomba = new Goomba(this, 64/ MrMario.PPM, 64/ MrMario.PPM);
+        goomba = new Goomba(this, 5.64f, .16f);
 
         world.setContactListener(new WorldContactListener());
         music = MrMario.manager.get("audio/music/mario_music.ogg", Music.class);

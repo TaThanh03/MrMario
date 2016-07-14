@@ -28,8 +28,17 @@ public class WorldContactListener implements ContactListener {
             case MrMario.ENEMY_HEAD_BIT | MrMario.MARIO_BIT:
                 if (fixA.getFilterData().categoryBits  == MrMario.ENEMY_HEAD_BIT)
                     ((Enemy)fixA.getUserData()).hitOnHead();
-                else if (fixB.getFilterData().categoryBits  == MrMario.ENEMY_HEAD_BIT)
+                else
                     ((Enemy)fixB.getUserData()).hitOnHead();
+                break;
+            case MrMario.ENEMY_BIT | MrMario.OBJECT_BIT:
+                if (fixA.getFilterData().categoryBits  == MrMario.ENEMY_BIT)
+                    ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
+                else
+                    ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
+                break;
+            case MrMario.MARIO_BIT | MrMario.ENEMY_BIT:
+                Gdx.app.log("MARIO", "died");
         }
     }
 
