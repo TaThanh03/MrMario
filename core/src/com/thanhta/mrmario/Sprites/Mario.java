@@ -107,7 +107,8 @@ public class Mario extends Sprite {
         fixtureDef.filter.categoryBits = MrMario.MARIO_BIT;
         //what fixture can mario collide?
         fixtureDef.filter.maskBits = MrMario.GROUND_BIT | MrMario.BRICK_BIT
-                | MrMario.COIN_BIT | MrMario.ENEMY_BIT | MrMario.OBJECT_BIT;
+                | MrMario.COIN_BIT | MrMario.ENEMY_BIT | MrMario.OBJECT_BIT
+                | MrMario.ENEMY_HEAD_BIT;
 
 
         //create mario's body
