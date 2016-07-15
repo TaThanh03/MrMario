@@ -1,4 +1,4 @@
-package com.thanhta.mrmario.Sprites;
+package com.thanhta.mrmario.Sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -17,11 +17,13 @@ public abstract class Enemy extends Sprite {
         this.screen = screen;
         setPosition(x,y);
         defineEnemy();
-        velocity = new Vector2(1,0);
+        velocity = new Vector2(0.5f,0);
+        b2body.setActive(false);
     }
 
     protected abstract void defineEnemy();
     public abstract void hitOnHead();
+    public abstract void update(float dt);
 
     public void reverseVelocity(boolean x, boolean y){
         if (x) velocity.x  = -velocity.x;

@@ -13,14 +13,20 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Scenes.Hud;
-import com.thanhta.mrmario.Sprites.Goomba;
+import com.thanhta.mrmario.Sprites.Enemies.Enemy;
+import com.thanhta.mrmario.Sprites.Items.Item;
+import com.thanhta.mrmario.Sprites.Items.ItemDef;
+import com.thanhta.mrmario.Sprites.Items.Mushroom;
 import com.thanhta.mrmario.Sprites.Mario;
 import com.thanhta.mrmario.Tools.B2WorldCreator;
 import com.thanhta.mrmario.Tools.WorldContactListener;
+
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class PlayScreen implements Screen {
     //reference to game, used to set screen
@@ -38,9 +44,12 @@ public class PlayScreen implements Screen {
     //box2d variables
     private World world;
     private Box2DDebugRenderer b2dr;
+    private B2WorldCreator creator;
     //sprites
     private Mario player;
-    private Goomba goomba;
+    //items
+    private Array<Item> items;
+    private LinkedBlockingDeque<ItemDef> itemsToSpawn;
     //music, sound
     private Music music;
 
@@ -66,16 +75,32 @@ public class PlayScreen implements Screen {
         world = new World(new Vector2(0,-10), true);
         b2dr = new Box2DDebugRenderer();
 
-        new B2WorldCreator(this);
+        creator = new B2WorldCreator(this);
+
         //create mario in game world
         player = new Mario(this);
-        goomba = new Goomba(this, 5.64f, .16f);
 
         world.setContactListener(new WorldContactListener());
-        music = MrMario.manager.get("audio/music/mario_music.ogg", Music.class);
-        music.setLooping(true);
-        music.play();
+//        music = MrMario.manager.get("audio/music/mario_music.ogg", Music.class);
+//        music.setLooping(true);
+//        music.play();
+
+        items = new Array<Item>();
+        itemsToSpawn = new LinkedBlockingDeque<ItemDef>();
     }
+    public void spawnItem(ItemDef itemDef){
+        itemsToSpawn.add(itemDef);
+    }
+
+    public void handleSpawningItems(){
+        if (!itemsToSpawn.isEmpty()){
+            ItemDef itemDef = itemsToSpawn.poll();
+            if (itemDef.type == Mushroom.class){
+                items.add(new Mushroom(this, itemDef.position.x, itemDef.position.y));
+            }
+        }
+    }
+
     public TextureAtlas getAtlas(){
         return atlas;
     }
@@ -92,11 +117,19 @@ public class PlayScreen implements Screen {
     public void update(float dt) {
         //handle user input first
         handleInput(dt);
+        handleSpawningItems();
         //set up physical attribute
         world.step(1/60f, 6,2);
         //update player
         player.update(dt);
-        goomba.update(dt);
+        for (Enemy enemy: creator.getGoombas()) {
+            enemy.update(dt);
+            //active when mario get close
+            if(enemy.getX() < player.getX() +  224/MrMario.PPM)
+                enemy.b2body.setActive(true);
+        }
+        for (Item item : items)
+            item.update(dt);
         hud.update(dt);
         gamecam.position.x = player.b2body.getPosition().x;
         //update our gamecam with correct coordinate after changes
@@ -120,7 +153,10 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
         player.draw(game.batch);
-        goomba.draw(game.batch);
+        for (Enemy enemy: creator.getGoombas())
+            enemy.draw(game.batch);
+        for (Item item : items)
+            item.draw(game.batch);
         game.batch.end();
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);

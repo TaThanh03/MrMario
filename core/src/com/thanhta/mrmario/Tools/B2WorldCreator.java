@@ -9,12 +9,17 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Screens.PlayScreen;
-import com.thanhta.mrmario.Sprites.Brick;
-import com.thanhta.mrmario.Sprites.Coin;
+import com.thanhta.mrmario.Sprites.TileObjects.Brick;
+import com.thanhta.mrmario.Sprites.TileObjects.Coin;
+import com.thanhta.mrmario.Sprites.Enemies.Goomba;
 
 public class B2WorldCreator {
+
+    private Array<Goomba> goombas;
+
     public B2WorldCreator(PlayScreen screen){
         World world = screen.getWorld();
         TiledMap map = screen.getMap();
@@ -32,6 +37,7 @@ public class B2WorldCreator {
 
             shape.setAsBox(rect.getWidth()/2/ MrMario.PPM, rect.getHeight()/2/ MrMario.PPM);
             fdef.shape = shape;
+            fdef.filter.categoryBits = MrMario.GROUND_BIT;
             body.createFixture(fdef);
         }
         //create pipe bodies/fixtures
@@ -49,13 +55,21 @@ public class B2WorldCreator {
         }
         //create brick bodies/fixtures
         for (MapObject object: map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Brick(screen, rect);
+            new Brick(screen, object);
         }
         //create coin bodies/fixtures
         for (MapObject object: map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            new Coin(screen, rect);
+            new Coin(screen, object);
         }
+        //create goombas
+        goombas = new Array<Goomba>();
+        for (MapObject object: map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)){
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            goombas.add(new Goomba(screen, rect.getX()/ MrMario.PPM, rect.getY()/ MrMario.PPM));
+        }
+    }
+
+    public Array<Goomba> getGoombas() {
+        return goombas;
     }
 }

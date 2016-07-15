@@ -1,4 +1,4 @@
-package com.thanhta.mrmario.Sprites;
+package com.thanhta.mrmario.Sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Screens.PlayScreen;
 
-public class Goomba extends Enemy {
+public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
     private float stateTime;
     private Animation walkAnimation;
     private Array<TextureRegion> frames;
@@ -39,6 +39,7 @@ public class Goomba extends Enemy {
             stateTime = 0;
         }
         else if (!destroyed) {
+            velocity.y = b2body.getLinearVelocity().y;
             b2body.setLinearVelocity(velocity);
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(walkAnimation.getKeyFrame(stateTime, true));
@@ -62,6 +63,7 @@ public class Goomba extends Enemy {
         shape.setRadius(7/ MrMario.PPM);
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
+
         //create goomba's head
         PolygonShape head  = new PolygonShape();
         Vector2[] vertice = new Vector2[4];
