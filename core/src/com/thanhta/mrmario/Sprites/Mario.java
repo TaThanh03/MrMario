@@ -1,5 +1,6 @@
 package com.thanhta.mrmario.Sprites;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -9,6 +10,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -16,7 +19,7 @@ import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Screens.PlayScreen;
 
 public class Mario extends Sprite {
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING}
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD}
     public State currentState;
     public State previousState;
     public World world;
@@ -26,6 +29,7 @@ public class Mario extends Sprite {
     private TextureRegion marioJump;
     private TextureRegion bigMarioStand;
     private TextureRegion bigMarioJump;
+    private TextureRegion marioDead;
     private Animation marioRun;
     private Animation bigMarioRun;
     private Animation growMario;
@@ -35,6 +39,8 @@ public class Mario extends Sprite {
     private boolean marioIsBig;
     private boolean runGrowAnimation;
     private boolean timeToDefineBigMario;
+    private boolean timeToRedefineBigMario;
+    private boolean marioIsDead;
 
     public Mario (PlayScreen screen){
         this.world = screen.getWorld();
@@ -48,6 +54,7 @@ public class Mario extends Sprite {
         bigMarioJump = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 80, 0, 16, 32);
         marioStand = new TextureRegion(screen.getAtlas().findRegion("little_mario"),0,0,16,18);
         bigMarioStand = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 0,0, 16, 32);
+        marioDead = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 96,0, 16, 18);
         //animation for Mario
         for (int i=1; i<4; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i*16, 0, 16, 18));
@@ -76,11 +83,18 @@ public class Mario extends Sprite {
         if (timeToDefineBigMario){
             defineBigMario();
         }
+        if (timeToRedefineBigMario){
+            redefineMario();
+        }
     }
+
     public TextureRegion getFrame(float dt) {
         currentState = getState();
         TextureRegion region ;
         switch (currentState){
+            case DEAD:
+                region = marioDead;
+                break;
             case GROWING:
                 region = growMario.getKeyFrame(stateTimer);
                 if (growMario.isAnimationFinished(stateTimer))
@@ -121,11 +135,19 @@ public class Mario extends Sprite {
         setBounds(getX(),getY(),getWidth(),getHeight()*2);
         MrMario.manager.get("audio/sounds/powerup.wav", Sound.class).play();
     }
+    public boolean isDead(){
+        return marioIsDead;
+    }
+    public float getStateTimer(){
+        return stateTimer;
+    }
     public boolean isBig(){
         return marioIsBig;
     }
     public State getState() {
-        if (runGrowAnimation)
+        if (marioIsDead)
+            return State.DEAD;
+        else if (runGrowAnimation)
             return State.GROWING;
         else if (b2body.getLinearVelocity().y >0 || (b2body.getLinearVelocity().y <0 && previousState == State.JUMPING))
             return State.JUMPING;
@@ -135,6 +157,26 @@ public class Mario extends Sprite {
             return State.RUNNING;
         else
             return State.STANDING;
+    }
+    public void hit(){
+        if (marioIsBig){
+            marioIsBig= false;
+            timeToRedefineBigMario = true;
+            setBounds(getX(),getY(),getWidth(),getHeight()/2);
+            MrMario.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
+        }
+        else{
+            MrMario.manager.get("audio/music/mario_music.ogg", Music.class).stop();
+            MrMario.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
+            marioIsDead = true;
+            Filter filter = new Filter();
+            filter.maskBits = MrMario.NOTHING_BIT;
+            //set EVERY fixture of Mario to nothing
+            for (Fixture fixture: b2body.getFixtureList())
+                fixture.setFilterData(filter);
+            b2body.applyLinearImpulse(new Vector2(0,4f), b2body.getWorldCenter(), true);
+
+        }
     }
     public void defineMario() {
         BodyDef bodyDef = new BodyDef();
@@ -191,4 +233,30 @@ public class Mario extends Sprite {
         b2body.createFixture(fixtureDef).setUserData(this);
         timeToDefineBigMario = false;
     }
+    private void redefineMario() {
+        Vector2 position = b2body.getPosition();
+        world.destroyBody(b2body);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(position);
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        b2body = world.createBody(bodyDef);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = MrMario.MARIO_BIT;
+        fixtureDef.filter.maskBits = MrMario.GROUND_BIT | MrMario.BRICK_BIT
+                | MrMario.COIN_BIT | MrMario.ENEMY_BIT | MrMario.OBJECT_BIT
+                | MrMario.ENEMY_HEAD_BIT | MrMario.ITEM_BIT;
+        CircleShape shape = new CircleShape();
+        shape.setRadius(7/ MrMario.PPM);
+        fixtureDef.shape = shape;
+        b2body.createFixture(fixtureDef).setUserData(this);
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2/ MrMario.PPM, 8/ MrMario.PPM),new Vector2(2/ MrMario.PPM, 8/ MrMario.PPM));
+        fixtureDef.filter.categoryBits = MrMario.MARIO_HEAD_BIT;
+        fixtureDef.shape = head;
+        fixtureDef.isSensor = true;
+        b2body.createFixture(fixtureDef).setUserData(this);
+
+        timeToRedefineBigMario = false;
+    }
+
 }
