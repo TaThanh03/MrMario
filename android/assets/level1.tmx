@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" nextobjectid="190">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" nextobjectid="216">
  <tileset firstgid="1" name="tileset_gutter" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="924" columns="33">
   <image source="tileset_gutter.png" width="594" height="504"/>
   <tile id="0">
@@ -231,17 +231,20 @@
  </objectgroup>
  <objectgroup name="Goombas">
   <object id="140" x="672" y="176" width="16" height="16"/>
-  <object id="161" x="528" y="176" width="16" height="16"/>
   <object id="162" x="832" y="176" width="16" height="16"/>
   <object id="163" x="2720" y="176" width="16" height="16"/>
   <object id="164" x="2752" y="176" width="16" height="16"/>
-  <object id="165" x="560" y="176" width="16" height="16"/>
-  <object id="166" x="352" y="176" width="16" height="16"/>
   <object id="184" x="2112" y="176" width="16" height="16"/>
   <object id="185" x="2064" y="176" width="16" height="16"/>
   <object id="186" x="2016" y="176" width="16" height="16"/>
   <object id="187" x="2080" y="32" width="16" height="16"/>
   <object id="189" x="1296" y="48" width="16" height="16"/>
  </objectgroup>
- <objectgroup name="Turtles" visible="0"/>
+ <objectgroup name="Turtles">
+  <object id="191" x="512" y="176" width="16" height="16"/>
+  <object id="198" x="1472" y="48" width="16" height="16"/>
+  <object id="199" x="576" y="176" width="16" height="16"/>
+  <object id="213" x="96" y="176" width="16" height="16"/>
+  <object id="215" x="64" y="176" width="16" height="16"/>
+ </objectgroup>
 </map>

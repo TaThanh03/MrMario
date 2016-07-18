@@ -17,6 +17,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Screens.PlayScreen;
+import com.thanhta.mrmario.Sprites.Enemies.Enemy;
+import com.thanhta.mrmario.Sprites.Enemies.Turtle;
 
 public class Mario extends Sprite {
     public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD}
@@ -158,24 +160,26 @@ public class Mario extends Sprite {
         else
             return State.STANDING;
     }
-    public void hit(){
-        if (marioIsBig){
-            marioIsBig= false;
-            timeToRedefineBigMario = true;
-            setBounds(getX(),getY(),getWidth(),getHeight()/2);
-            MrMario.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
-        }
-        else{
-            MrMario.manager.get("audio/music/mario_music.ogg", Music.class).stop();
-            MrMario.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
-            marioIsDead = true;
-            Filter filter = new Filter();
-            filter.maskBits = MrMario.NOTHING_BIT;
-            //set EVERY fixture of Mario to nothing
-            for (Fixture fixture: b2body.getFixtureList())
-                fixture.setFilterData(filter);
-            b2body.applyLinearImpulse(new Vector2(0,4f), b2body.getWorldCenter(), true);
-
+    public void hit(Enemy enemy){
+        if (enemy instanceof Turtle && ((Turtle) enemy).getCurrentState() == Turtle.State.STANDING_SHELL)
+            ((Turtle) enemy).kick(this.getX() <= enemy.getX()? Turtle.KICK_RIGHT_SPEED: Turtle.KICK_LEFT_SPEED);
+        else {
+            if (marioIsBig) {
+                marioIsBig = false;
+                timeToRedefineBigMario = true;
+                setBounds(getX(), getY(), getWidth(), getHeight() / 2);
+                MrMario.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
+            } else {
+                MrMario.manager.get("audio/music/mario_music.ogg", Music.class).stop();
+                MrMario.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
+                marioIsDead = true;
+                Filter filter = new Filter();
+                filter.maskBits = MrMario.NOTHING_BIT;
+                //set EVERY fixture of Mario to nothing
+                for (Fixture fixture : b2body.getFixtureList())
+                    fixture.setFilterData(filter);
+                b2body.applyLinearImpulse(new Vector2(0, 4f), b2body.getWorldCenter(), true);
+            }
         }
     }
     public void defineMario() {

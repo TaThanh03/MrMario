@@ -29,9 +29,9 @@ public class WorldContactListener implements ContactListener {
                 break;
             case MrMario.ENEMY_HEAD_BIT | MrMario.MARIO_BIT:
                 if (fixA.getFilterData().categoryBits  == MrMario.ENEMY_HEAD_BIT)
-                    ((Enemy)fixA.getUserData()).hitOnHead();
+                    ((Enemy)fixA.getUserData()).hitOnHead((Mario)fixB.getUserData());
                 else
-                    ((Enemy)fixB.getUserData()).hitOnHead();
+                    ((Enemy)fixB.getUserData()).hitOnHead((Mario)fixA.getUserData());
                 break;
             case MrMario.ENEMY_BIT | MrMario.OBJECT_BIT:
                 if (fixA.getFilterData().categoryBits  == MrMario.ENEMY_BIT)
@@ -41,13 +41,17 @@ public class WorldContactListener implements ContactListener {
                 break;
             case MrMario.MARIO_BIT | MrMario.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits  == MrMario.MARIO_BIT)
-                    ((Mario)fixA.getUserData()).hit();
+                    ((Mario)fixA.getUserData()).hit((Enemy)fixB.getUserData());
                 else
-                    ((Mario)fixB.getUserData()).hit();
+                    ((Mario)fixB.getUserData()).hit((Enemy)fixA.getUserData());
                 break;
+//            case MrMario.ENEMY_BIT | MrMario.ENEMY_BIT:
+//                ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
+//                ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
+//                break;
             case MrMario.ENEMY_BIT | MrMario.ENEMY_BIT:
-                ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
-                ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
+                ((Enemy)fixA.getUserData()).onEnemyHit((Enemy)fixB.getUserData());
+                ((Enemy)fixB.getUserData()).onEnemyHit((Enemy)fixA.getUserData());
                 break;
             case MrMario.ITEM_BIT | MrMario.OBJECT_BIT:
                 if (fixA.getFilterData().categoryBits  == MrMario.ITEM_BIT)

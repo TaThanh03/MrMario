@@ -124,10 +124,10 @@ public class PlayScreen implements Screen {
         world.step(1/60f, 6,2);
         //update player
         player.update(dt);
-        for (Enemy enemy: creator.getGoombas()) {
+        for (Enemy enemy: creator.getEnemies()) {
             enemy.update(dt);
             //active when mario get close
-            if(enemy.getX() < player.getX() +  224/MrMario.PPM)
+            if(enemy.getX() < player.getX() +  200/MrMario.PPM)
                 enemy.b2body.setActive(true);
         }
         for (Item item : items)
@@ -156,7 +156,7 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
         player.draw(game.batch);
-        for (Enemy enemy: creator.getGoombas())
+        for (Enemy enemy: creator.getEnemies())
             enemy.draw(game.batch);
         for (Item item : items)
             item.draw(game.batch);
@@ -170,7 +170,7 @@ public class PlayScreen implements Screen {
         }
     }
     public boolean gameOver(){
-        if (player.currentState == Mario.State.DEAD && player.getStateTimer() > 3)
+        if (player.currentState == Mario.State.DEAD && player.getStateTimer() > 2)
             return true;
         return false;
     }

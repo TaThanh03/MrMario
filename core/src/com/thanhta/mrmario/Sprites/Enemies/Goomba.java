@@ -12,6 +12,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.thanhta.mrmario.MrMario;
 import com.thanhta.mrmario.Screens.PlayScreen;
+import com.thanhta.mrmario.Sprites.Mario;
+import com.thanhta.mrmario.Tools.B2WorldCreator;
 
 public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
     private float stateTime;
@@ -31,6 +33,14 @@ public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
         setToDestroy = false;
         destroyed = false;
     }
+
+    @Override
+    public void onEnemyHit(Enemy enemy) {
+        if (enemy instanceof Turtle && ((Turtle) enemy).currentState == Turtle.State.MOVING_SHELL)
+            setToDestroy =true;
+        else
+            reverseVelocity(true,false);
+    }
     public void update(float dt){
         stateTime += dt;
         if (setToDestroy && !destroyed){
@@ -44,7 +54,8 @@ public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
             b2body.setLinearVelocity(velocity);
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(walkAnimation.getKeyFrame(stateTime, true));
-        }
+        } else if(destroyed && stateTime>1)
+            B2WorldCreator.removeEnemy(this);
     }
 
     @Override
@@ -61,7 +72,7 @@ public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
                 | MrMario.COIN_BIT | MrMario.ENEMY_BIT | MrMario.OBJECT_BIT;
         //create enemy's body
         CircleShape shape = new CircleShape();
-        shape.setRadius(7/ MrMario.PPM);
+        shape.setRadius(6/ MrMario.PPM);
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
 
@@ -87,7 +98,7 @@ public class Goomba extends com.thanhta.mrmario.Sprites.Enemies.Enemy {
     }
 
     @Override
-    public void hitOnHead() {
+    public void hitOnHead(Mario mario) {
         setToDestroy = true;
         MrMario.manager.get("audio/sounds/stomp.wav", Sound.class).play();
     }
